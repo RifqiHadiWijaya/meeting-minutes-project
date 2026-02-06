@@ -20,6 +20,12 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth'])->group(function (){
     Route::get('/meetings', [MeetingController::class, 'index'])->name('meetings.index');
+    Route::get('/meetings/create', [MeetingController::class, 'create'])->name('meetings.create');
+    Route::post('/meetings', [MeetingController::class, 'store'])->name('meetings.store');
+    Route::get('/meetings/{meeting}/edit', [MeetingController::class, 'edit'])
+        ->name('meetings.edit');
+    Route::put('/meetings/{meeting}', [MeetingController::class, 'update'])
+        ->name('meetings.update');
 });
 
 require __DIR__.'/auth.php';

@@ -8,6 +8,12 @@
 </head>
 <body>
     <x-app-layout>
+        @if(auth()->user()->role !== 'viewer')
+            <a href="{{ route('meetings.create') }}"
+            class="bg-green-600 text-white px-4 py-2 rounded mb-4 inline-block">
+                + Tambah Rapat
+            </a>
+        @endif
         <x-slot name="header">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Daftar Rapat
@@ -25,6 +31,7 @@
                                 <th class="border p-2">Waktu</th>
                                 <th class="border p-2">Lokasi</th>
                                 <th class="border p-2">Status</th>
+                                <th class="border p-2">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -35,6 +42,16 @@
                                     <td class="border p-2">{{ $meeting->time }}</td>
                                     <td class="border p-2">{{ $meeting->location }}</td>
                                     <td class="border p-2">{{ $meeting->status }}</td>
+                                    <td class="border p-2">
+                                        @if(auth()->id() === $meeting->created_by && auth()->user()->role !== 'viewer')
+                                            <a href="{{ route('meetings.edit', $meeting->id) }}"
+                                            class="bg-yellow-500 text-white px-3 py-1 rounded">
+                                                Isi Notulensi
+                                            </a>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
