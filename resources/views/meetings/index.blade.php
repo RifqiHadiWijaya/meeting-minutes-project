@@ -8,12 +8,6 @@
 </head>
 <body>
     <x-app-layout>
-        @if(auth()->user()->role !== 'viewer')
-            <a href="{{ route('meetings.create') }}"
-            class="bg-green-600 text-white px-4 py-2 rounded mb-4 inline-block">
-                + Tambah Rapat
-            </a>
-        @endif
         <x-slot name="header">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Daftar Rapat
@@ -22,7 +16,13 @@
 
         <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white p-6 rounded shadow">
+                <div class="bg-white p-6 rounded shadow"> 
+                    @if(auth()->user()->role !== 'viewer')
+                        <a href="{{ route('meetings.create') }}"
+                        class="bg-green-600 text-white px-4 py-2 rounded mb-4 inline-block">
+                            + Tambah Rapat
+                        </a>
+                    @endif
                     <table class="w-full border">
                         <thead>
                             <tr class="bg-gray-100">
