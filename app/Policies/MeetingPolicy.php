@@ -21,8 +21,8 @@ class MeetingPolicy
      */
     public function update(User $user, Meeting $meeting)
     {
-        return $user->isAdmin()
-            || ($user->isNotulis() && $meeting->created_by === $user->id);
+        return $user->role === 'notulis'
+            && $user->id === $meeting->created_by;
     }
 
     public function create(User $user)

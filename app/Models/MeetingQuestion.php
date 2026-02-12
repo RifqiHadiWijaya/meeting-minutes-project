@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class MeetingQuestion extends Model
 {
+    protected $fillable = [
+        'meeting_id',
+        'user_id',
+        'isi',
+        'parent_id'
+    ];
+
     public function meeting()
     {
         return $this->belongsTo(Meeting::class);
