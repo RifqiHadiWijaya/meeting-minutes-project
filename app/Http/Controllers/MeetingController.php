@@ -7,9 +7,24 @@ use App\Models\Meeting;
 
 class MeetingController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $meetings = Meeting::latest()->get();
+        // Filter Status
+        $query = Meeting::query();
+        // Tambahkan filter jika ada input 'status
+        if (request('status')) {
+            $query->where('status', request('status'));
+        }
+
+        // Gunakan satu alur query agar filter dan eager load berjalan bersamaan
+        $meetings = Meeting::with(['creator']) // Menambahkan Eager Load
+            ->withCount('questions')
+            ->latest()
+            ->when($request->status, function ($query, $status) {
+                return $query->where('status', $status);
+            })
+            ->paginate(10)
+            ->withQueryString();
         return view('meetings.index', compact('meetings'));
     }
 
@@ -85,7 +100,17 @@ class MeetingController extends Controller
             'status' => 'required|in:scheduled,completed'
         ]);
 
-        $meeting->update($request->all());
+        $meeting->update([
+            'judul' => $request->judul,
+            'tanggal' => $request->tanggal,
+            'waktu' => $request->waktu,
+            'lokasi' => $request->lokasi,
+            'jenis' => $request->jenis,
+            'topik' => $request->topik,
+            'partisipan' => $request->partisipan,
+            'notulensi' => $request->notulensi,
+            'status' => $request->status,
+        ]);
 
         return redirect()->route('meetings.index')
             ->with('success', 'Rapat berhasil diupdate');

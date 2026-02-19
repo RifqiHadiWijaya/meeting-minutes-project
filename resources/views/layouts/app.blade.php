@@ -29,6 +29,14 @@
 
             <!-- Page Content -->
             <main>
+                <div class="max-w-7xl mx-auto mt-4 px-4 sm:px-6 lg:px-8">
+                    @if(session('success'))
+                        <div style="background:#d4edda; color: #155724; padding:15px; border-radius: 5px; border: 1px solid #c3e6cb;">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+                </div>
+
                 {{ $slot }}
             </main>
         </div>
