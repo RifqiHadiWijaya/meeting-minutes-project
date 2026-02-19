@@ -56,6 +56,10 @@ class MeetingController extends Controller
 
     public function show(Meeting $meeting)
     {
+        $meeting->load([
+            'questions.user',
+            'questions.replies.user'
+        ]);
         return view('meetings.show', compact('meeting'));
     }
 

@@ -26,6 +26,6 @@ class Meeting extends Model
     public function questions()
     {
         return $this->hasMany(MeetingQuestion::class)
-            ->whereNuull('parent_id');
+            ->whereNull('parent_id');
     }
 }
