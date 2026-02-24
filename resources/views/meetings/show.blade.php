@@ -12,6 +12,13 @@
 
     {{-- form pertanyaan (hanya viewer) --}}
     <hr>
+
+    {{-- Tombol download PDF --}}
+    <a href="{{ route('meetings.pdf', $meeting->id) }}" 
+        style="background-color: #ef4444; color: white; padding: 2px 4px; border-radius: 5px; text-decoration: none;">
+        Download PDF
+    </a>
+    
 <h3>Pertanyaan & Klarifikasi</h3>
 
 {{-- Form Pertanyaan (Hanya Viewer) --}}

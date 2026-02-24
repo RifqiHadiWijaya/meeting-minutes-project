@@ -13,6 +13,7 @@
     tinymce.init({
         selector: 'textarea[name="notulensi"]',
         license_key: 'gpl',
+        promotion: false,
         height: 400,
         menubar: true,
         plugins: 'lists link image table code',

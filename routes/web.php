@@ -31,6 +31,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/questions/{question}/reply',
         [MeetingQuestionController::class, 'reply'])
         ->name('questions.reply');
+
+    // Route PDF
+    Route::get('/meetings/{meeting}/pdf',
+[MeetingController::class, 'exportPdf'])
+        ->name('meetings.pdf');
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {

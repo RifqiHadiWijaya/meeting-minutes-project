@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Meeting;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class MeetingController extends Controller
 {
@@ -114,5 +115,12 @@ class MeetingController extends Controller
 
         return redirect()->route('meetings.index')
             ->with('success', 'Rapat berhasil diupdate');
+    }
+
+    public function exportPdf(Meeting $meeting)
+    {
+        $pdf = Pdf::loadView('meetings.pdf', compact('meeting'));
+
+        return $pdf->download('notulensi-'.$meeting->judul.'.pdf');
     }
 }
