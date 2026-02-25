@@ -1,23 +1,32 @@
 <x-app-layout>
-    <h1>{{ $meeting->judul }}</h1>
+    <div class="max-w-4xl mx-auto py-8">
 
-    <p>Tanggal: {{ $meeting->tanggal }}</p>
-    <p>Lokasi: {{ $meeting->lokasi }}</p>
+        <h1 class="text-2xl font-bold mb-4">
+            {{ $meeting->judul }}
+        </h1>
 
-    <hr>
+        <div class="bg-white shadow rounded p-6 mb-6">
+            <p><strong>Tanggal:</strong> {{ $meeting->tanggal }}</p>
+            <p><strong>Lokasi:</strong> {{ $meeting->lokasi }}</p>
+            <p><strong>Status:</strong> 
+                <span class="
+                    {{ $meeting->status === 'completed' ? 'bg-green-600' : 'bg-blue-600' }}">
+                    {{ ucfirst($meeting->status) }}
+                </span>
+            </p>
+        </div>
 
-    <h3>Notulensi</h3>
+        <div class="bg-white shadow rounded p-6 mb-6">
+            <h3 class="text-lg font-semibold mb-4">Notulensi</h3>
+            <div class="prose max-w-none">
+                {!! $meeting->notulensi !!}
+            </div>
+        </div>
 
-    {!! $meeting->notulensi !!}
-
-    {{-- form pertanyaan (hanya viewer) --}}
-    <hr>
-
-    {{-- Tombol download PDF --}}
-    <a href="{{ route('meetings.pdf', $meeting->id) }}" 
-        style="background-color: #ef4444; color: white; padding: 2px 4px; border-radius: 5px; text-decoration: none;">
-        Download PDF
-    </a>
+        <a href="{{ route('meetings.pdf', $meeting->id) }}" 
+           class="inline-block bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+            Download PDF
+        </a>
     
 <h3>Pertanyaan & Klarifikasi</h3>
 

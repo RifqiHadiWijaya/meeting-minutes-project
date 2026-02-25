@@ -9,11 +9,21 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Mengambil data dari database menggunakan Eloquent Model
-        $meetings = Meeting::select('id', 'judul', 'tanggal')
-            ->where('status', 'scheduled')
-            ->get();
+        $meetings = Meeting::select('id', 'judul', 'tanggal', 'status')
+            ->get()
+            ->map(function ($m) {
+                return [
+                    'title' => $m->judul,
+                    'start' => $m->tanggal,
+                    'url'   => route('meetings.show', $m->id),
+                    'color' => $m->status === 'completed'
+                        ? '#16a34a'
+                        : '#2563eb',
+                ];
+            });
 
-        return view('dashboard', compact('meetings'));
+        return view('dashboard', [
+            'events' => $meetings
+        ]);
     }
 }

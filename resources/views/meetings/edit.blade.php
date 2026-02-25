@@ -15,9 +15,31 @@
         license_key: 'gpl',
         promotion: false,
         height: 400,
-        menubar: true,
-        plugins: 'lists link image table code',
-        toolbar: 'undo redo | bold italic underline | bullist numlist | alignleft aligncenter alignright | code'
+
+        menubar: 'file edit view insert format tools table',
+
+        plugins: 'lists link table',
+
+        toolbar: `
+            undo redo |
+            formatselect |
+            bold italic underline |
+            alignleft aligncenter alignright |
+            bullist numlist |
+            table
+        `,
+
+        block_formats: 'Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3',
+
+        valid_elements: `
+            p,h1,h2,h3,strong/b,em/i,u,
+            ul,ol,li,
+            table,thead,tbody,tr,th,td,
+            a[href|target=_blank]
+        `,
+
+        forced_root_block: 'p',
+        branding: false
     });
     </script>
 
