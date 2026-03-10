@@ -10,24 +10,23 @@ class MeetingController extends Controller
 {
     public function index(Request $request)
     {
-        // Filter Status
-        $query = Meeting::query();
-        // Tambahkan filter jika ada input 'status
-        if (request('status')) {
-            $query->where('status', request('status'));
-        }
-
-        // Gunakan satu alur query agar filter dan eager load berjalan bersamaan
-        $meetings = Meeting::with(['creator']) // Menambahkan Eager Load
+        /**
+         * Muat semua data sekaligus agar filter Status, Jenis,
+         * Sorting, dan Search dapat bekerja di sisi klien (JavaScript)
+         * tanpa reload halaman.
+         *
+         * Tetap gunakan paginate(50) sebagai batas aman jika data banyak.
+         * Naikkan angka ini jika diperlukan.
+         */
+        $meetings = Meeting::with(['creator'])
             ->withCount('questions')
-            ->latest()
-            ->when($request->status, function ($query, $status) {
-                return $query->where('status', $status);
-            })
-            ->paginate(10)
+            ->latest()           // default: terbaru dulu (bisa di-override oleh JS sort)
+            ->paginate(50)
             ->withQueryString();
+
         return view('meetings.index', compact('meetings'));
     }
+
 
     public function create()
     {
@@ -48,7 +47,7 @@ class MeetingController extends Controller
             'tanggal' => 'required|date',
             'waktu' => 'required',
             'lokasi' => 'required|string|max:255',
-            'jenis' => 'nullable|string|max:255',
+            'jenis' => 'required|string|max:255',
             'topik' => 'nullable|string',
             'partisipan' => 'nullable|string',
         ]);
@@ -63,10 +62,11 @@ class MeetingController extends Controller
             'partisipan' => $request->partisipan,
             'status' => 'scheduled',
             'created_by' => auth()->id(),
+            'creator_name' => auth()->user()->name, // ← snapshot nama pembuat
             'notulen' => auth()->id(),
+            'notulen_name' => auth()->user()->name, // ← snapshot nama notulis
         ]);
-        return redirect()->route('meetings.index');
-            with('success', 'Rapat Berhasil Dibuat');
+        return redirect()->route('meetings.index')->with('success', 'Rapat Berhasil Dibuat');
     }
 
 

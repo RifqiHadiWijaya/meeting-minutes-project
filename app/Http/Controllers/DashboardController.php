@@ -9,7 +9,8 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $meetings = Meeting::select('id', 'judul', 'tanggal', 'status')
+        // Data untuk kalender
+        $events = Meeting::select('id', 'judul', 'tanggal', 'status')
             ->get()
             ->map(function ($m) {
                 return [
@@ -22,8 +23,24 @@ class DashboardController extends Controller
                 ];
             });
 
+        // 5 rapat terakhir
+        $recentMeetings = Meeting::with('creator')
+            ->select('id', 'judul', 'tanggal', 'waktu', 'lokasi', 'status', 'jenis', 'created_by')
+            ->orderBy('tanggal', 'desc')
+            ->limit(5)
+            ->get();
+
+        // Statistik ringkasan
+        $totalMeetings    = Meeting::count();
+        $completedCount   = Meeting::where('status', 'completed')->count();
+        $scheduledCount   = Meeting::where('status', 'scheduled')->count();
+
         return view('dashboard', [
-            'events' => $meetings
+            'events'         => $events,
+            'recentMeetings' => $recentMeetings,
+            'totalMeetings'  => $totalMeetings,
+            'completedCount' => $completedCount,
+            'scheduledCount' => $scheduledCount,
         ]);
     }
 }

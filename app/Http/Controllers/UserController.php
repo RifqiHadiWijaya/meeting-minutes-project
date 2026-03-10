@@ -22,19 +22,21 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'email' => 'required|email|unique:users,email',
+            'username' => 'required|string|max:255|unique:users',
+            // 'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6',
             'role' => 'required|in:admin,notulis,viewer'
         ]);
 
         User::create([
             'name' => $request->name,
-            'email' => $request->email,
+            'username' => $request->username,
+            // 'email' => $request->email,
             'password' => bcrypt($request->password),
             'role' => $request->role
         ]);
 
-        return redirect()->route('users.index');
+        return redirect()->route('users.index')->with('success', 'User berhasil ditambahkan.');
     }
 
     public function edit(User $user)
@@ -46,16 +48,20 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+            'password' => 'nullable|string|min:8|confirmed',
             'role' => 'required|in:admin,notulis,viewer'
         ]);
 
         $user->update([
             'name' => $request->name,
-            'role' => $request->role
+            'username' => $request->username,
+            'role' => $request->role,
+            ...($request->filled('password') ? ['password' => bcrypt($request->password)] : []),
         ]);
 
         return redirect()->route('users.index')
-            ->with('success', 'User berhasil diupdate');
+            ->with('success', 'User berhasil diperbarui');
     }
 
     public function destroy(User $user)

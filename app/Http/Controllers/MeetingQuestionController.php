@@ -21,11 +21,12 @@ class MeetingQuestionController extends Controller
         MeetingQuestion::create([
             'meeting_id' => $meeting->id,
             'user_id' => auth()->id(),
+            'user_name'  => auth()->user()->name, // ← snapshot nama penanya
             'isi' => $request->isi,
             'parent_id' => null
         ]);
 
-        return back();
+        return back()->with('success', 'Pertanyaan berhasil dikirim.');
     }
 
     public function reply(Request $request, MeetingQuestion $question)
@@ -41,10 +42,11 @@ class MeetingQuestionController extends Controller
         MeetingQuestion::create([
             'meeting_id' => $question->meeting_id,
             'user_id' => auth()->id(),
+            'user_name'  => auth()->user()->name, // ← snapshot nama penjawab
             'isi' => $request->isi,
             'parent_id' => $question->id
         ]);
 
-        return back();
+        return back()->with('success', 'Jawaban berhasil dikirim.');
     }
 }
