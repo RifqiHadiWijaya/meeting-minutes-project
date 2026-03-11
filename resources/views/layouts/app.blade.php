@@ -6,6 +6,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>@yield('title', config('app.name'))</title>
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -30,9 +31,7 @@
 
                 <div class="sidebar-brand">
                     <div class="sidebar-brand-icon">
-                        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
+                        <img src="{{ asset('images/logo-diskominfo.png') }}" alt="Logo" class="sidebar-logo-img">
                     </div>
                     <div>
                         <div class="sidebar-brand-text">Sistem Notulensi</div>
@@ -95,7 +94,8 @@
                 {{-- HEADER --}}
                 <header class="top-header">
                     <div class="header-title">
-                        Sistem Informasi Notulensi Rapat Dinas
+                        <span class="sinora-si">SI</span><span class="sinora-nora">NORA</span>
+                        <span class="sinora-full">Sistem Informasi Notulensi Rapat Dinas</span>
                     </div>
 
                     <div class="header-right">

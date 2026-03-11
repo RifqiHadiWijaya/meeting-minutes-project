@@ -15,9 +15,7 @@
     {{-- Brand --}}
     <div class="brand">
         <div class="brand-icon">
-            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
+            <img src="{{ asset('images/logo-diskominfo.png') }}" alt="Logo" class="brand-logo-img">
         </div>
         <div class="brand-text">
             <div class="brand-name">Sistem Notulensi</div>

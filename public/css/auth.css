@@ -37,9 +37,10 @@ body::before {
 }
 
 .brand-icon {
-    width: 44px;
-    height: 44px;
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    width: 64px;
+    height: 64px;
+    background: transparent;
+    box-shadow: none;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -52,6 +53,12 @@ body::before {
     height: 22px;
     stroke: #fff;
     fill: none;
+}
+
+.brand-logo-img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
 }
 
 .brand-text { line-height: 1.25; }
