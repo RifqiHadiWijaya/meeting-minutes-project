@@ -10,21 +10,34 @@ class MeetingController extends Controller
 {
     public function index(Request $request)
     {
-        /**
-         * Muat semua data sekaligus agar filter Status, Jenis,
-         * Sorting, dan Search dapat bekerja di sisi klien (JavaScript)
-         * tanpa reload halaman.
-         *
-         * Tetap gunakan paginate(50) sebagai batas aman jika data banyak.
-         * Naikkan angka ini jika diperlukan.
-         */
-        $meetings = Meeting::with(['creator'])
-            ->withCount('questions')
-            ->latest()           // default: terbaru dulu (bisa di-override oleh JS sort)
-            ->paginate(50)
-            ->withQueryString();
+        $query = Meeting::with(['creator'])
+            ->withCount('questions');
 
-        return view('meetings.index', compact('meetings'));
+        // ── Search: judul rapat ──────────────────────────────
+        if ($request->filled('search')) {
+            $query->where('judul', 'like', '%' . $request->search . '%');
+        }
+
+        // ── Filter: status ───────────────────────────────────
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // ── Filter: jenis ────────────────────────────────────
+        if ($request->filled('jenis')) {
+            $query->where('jenis', $request->jenis);
+        }
+
+        // ── Sort: tanggal ────────────────────────────────────
+        $sort = $request->input('sort', 'desc');
+        $query->orderBy('tanggal', in_array($sort, ['asc', 'desc']) ? $sort : 'desc');
+
+        $meetings = $query->paginate(10)->withQueryString();
+
+        // Total keseluruhan (untuk label "Menampilkan X dari Y")
+        $totalAll = Meeting::count();
+
+        return view('meetings.index', compact('meetings', 'totalAll'));
     }
 
 

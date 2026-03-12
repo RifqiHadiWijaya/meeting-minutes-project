@@ -106,7 +106,7 @@
 </div>
 
 {{-- Pertanyaan & Klarifikasi --}}
-<div class="card">
+<div class="card qa-section">
   <div class="card-header">
     <span class="card-header-title">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -114,7 +114,7 @@
       </svg>
       Pertanyaan &amp; Klarifikasi
     </span>
-    <span style="font-size:12px; color:#64748b; font-weight:500;">
+    <span class="qa-counter">
       {{ $meeting->questions->count() }} pertanyaan
     </span>
   </div>
@@ -122,7 +122,7 @@
 
     {{-- Form Pertanyaan (Viewer) --}}
     @if(auth()->user()->role === 'viewer')
-    <form action="{{ route('questions.store', $meeting->id) }}" method="POST" class="qa-form" style="margin-bottom: 24px;">
+    <form action="{{ route('questions.store', $meeting->id) }}" method="POST" class="qa-form qa-question-form" style="margin-bottom: 24px;">
       @csrf
       <textarea name="isi" placeholder="Tulis pertanyaan atau klarifikasi Anda..." required></textarea>
       <div class="qa-form-footer">
@@ -138,6 +138,7 @@
     @endif
 
     {{-- List Pertanyaan --}}
+    <div class="qa-list"></div>
     @forelse($meeting->questions as $question)
     <div class="question-card">
       <div class="question-meta">
@@ -153,7 +154,7 @@
       @if($question->replies->count())
       <div class="reply-wrap">
         @foreach($question->replies as $reply)
-        <div class="reply-card">
+        <div class="reply-card reply-rendered">
           <div class="avatar-sm" style="background: linear-gradient(135deg,#10b981,#0891b2);">
             {{ $reply->user_initials }}
           </div>
@@ -170,7 +171,7 @@
       @if(auth()->user()->role === 'notulis' && auth()->id() === $meeting->created_by)
       <div class="reply-form-wrap">
         <div class="reply-form-label">Tulis Jawaban</div>
-        <form action="{{ route('questions.reply', $question->id) }}" method="POST" class="qa-form">
+        <form action="{{ route('questions.reply', $question->id) }}" method="POST" class="qa-form qa-reply-form">
           @csrf
           <textarea name="isi" placeholder="Tulis jawaban..." required style="min-height:64px;"></textarea>
           <div class="qa-form-footer">
@@ -195,6 +196,7 @@
       <div>Belum ada pertanyaan untuk rapat ini.</div>
     </div>
     @endforelse
+    </div> {{-- /.qa-list --}}
 
   </div>
 </div>

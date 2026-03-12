@@ -25,7 +25,8 @@
 {{-- ══ TOOLBAR ══ --}}
 <div class="toolbar">
     <div class="search-wrap">
-        <input type="text" id="searchInput" class="search-input" placeholder="Cari judul rapat..." autocomplete="off">
+        <input type="text" id="searchInput" class="search-input" placeholder="Cari judul rapat..." autocomplete="off"
+            value="{{ request('search') }}">
         <svg class="search-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
@@ -62,7 +63,9 @@
 
 {{-- ══ RESULT INFO ══ --}}
 <div class="result-info">
-    <span class="result-count" id="resultCount"></span>
+    <span class="result-count" id="resultCount"
+        data-total="{{ $totalAll }}"
+        data-showing="{{ $meetings->total() }}"></span>
     <button type="button" class="reset-all" id="resetAll">
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         Reset filter

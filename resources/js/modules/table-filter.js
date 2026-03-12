@@ -204,19 +204,6 @@ export function initTableFilter(opts) {
 
     // Init
     applyAll();
-
-    // ── Klik baris → detail (opsional, jika ada .btn-detail) ──
-    tbody.querySelectorAll('tr').forEach(row => {
-        const link = row.querySelector('.btn-detail');
-        if (!link) return;
-        row.style.cursor = 'pointer';
-        row.addEventListener('click', e => {
-            if (e.target.closest('.actions')) return;
-            row.style.background = 'rgba(59,130,246,.05)';
-            setTimeout(() => row.style.background = '', 200);
-            window.location.href = link.href;
-        });
-    });
 }
 
 // ── Helper ──
