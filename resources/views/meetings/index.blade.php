@@ -81,8 +81,8 @@
                     <th>#</th>
                     <th>Judul Rapat</th>
                     <th>Tanggal & Waktu</th>
-                    <th>Dibuat Oleh</th>
-                    <th>Pertanyaan</th>
+                    <th class="col-hide-mobile">Dibuat Oleh</th>
+                    <th class="col-hide-mobile">Pertanyaan</th>
                     <th>Status</th>
                     <th>Aksi</th>
                 </tr>
@@ -124,14 +124,14 @@
                             </div>
                         </td>
 
-                        <td>
+                        <td class="col-hide-mobile">
                             <div class="creator-cell">
                                 <div class="avatar">{{ $meeting->creator_initials }}</div>
                                 <span class="creator-name">{{ $meeting->display_creator_name }}</span>
                             </div>
                         </td>
 
-                        <td><span class="q-count">{{ $meeting->questions_count }}</span></td>
+                        <td class="col-hide-mobile"><span class="q-count">{{ $meeting->questions_count }}</span></td>
 
                         <td>
                             @if($meeting->status === 'completed')

@@ -1,0 +1,708 @@
+/* =============================================================
+   responsive.css  –  SINORA Responsive Design System
+   v2 — Fix: sidebar pointer-events, layout mobile, stat-grid
+
+   Breakpoints:
+     Mobile  : < 640px
+     Tablet  : 640–1024px
+     Desktop : > 1024px (tidak diubah)
+   ============================================================= */
+
+
+/* =============================================================
+   1. SIDEBAR OVERLAY & HAMBURGER — Base styles (semua ukuran)
+   ============================================================= */
+
+.sidebar-overlay {
+    /* Selalu ada di DOM — animasi via opacity & pointer-events */
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 22, 40, 0.45);
+    z-index: 102;          /* lebih tinggi dari header (101) agar overlay klik-able */
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    pointer-events: none;  /* tidak tangkap klik saat tidak aktif */
+    transition: opacity 0.25s ease;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    pointer-events: auto;  /* tangkap klik saat aktif */
+}
+
+.hamburger-btn {
+    display: none; /* tampil via media query di bawah */
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1.5px solid var(--slate-200);
+    border-radius: var(--radius-md);
+    background: var(--slate-50);
+    cursor: pointer;
+    color: var(--slate-600);
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s;
+    margin-right: 4px;
+    /* Pastikan selalu di atas sidebar yang ter-transform */
+    position: relative;
+    z-index: 101;
+}
+
+.hamburger-btn:hover {
+    background: var(--slate-100);
+    border-color: var(--slate-300);
+    color: var(--slate-900);
+}
+
+.hamburger-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    fill: none;
+    flex-shrink: 0;
+}
+
+.sidebar-close-btn {
+    display: none;
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid var(--slate-200);
+    background: var(--slate-50);
+    color: var(--slate-500);
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: background 0.15s;
+}
+
+.sidebar-close-btn:hover {
+    background: var(--danger-bg);
+    color: var(--danger-text);
+    border-color: var(--danger-border);
+}
+
+.sidebar-close-btn svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+    fill: none;
+}
+
+
+/* =============================================================
+   2. TABLET  (640px – 1024px)
+   ============================================================= */
+
+@media (max-width: 1024px) {
+
+    /* ── FIX BUG HAMBURGER IPAD ──────────────────────────────────
+       Root cause: sidebar position:fixed + transform:translateX(-100%)
+       tetap ada di DOM dan MENANGKAP pointer events meski tidak terlihat.
+       Solusi: pointer-events:none saat tertutup, auto saat terbuka.   */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 103;          /* di atas overlay (102) */
+        transform: translateX(-100%);
+        transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--shadow-lg);
+        pointer-events: none; /* ← KUNCI: tidak tangkap klik saat tertutup */
+    }
+
+    .sidebar.sidebar-open {
+        transform: translateX(0);
+        pointer-events: auto; /* ← aktifkan kembali saat terbuka */
+    }
+
+    /* Tampilkan tombol close & hamburger */
+    .sidebar-close-btn { display: flex; }
+    .hamburger-btn     { display: flex; }
+
+    /* Main area: scroll di dalam container, bukan body */
+    .main-area {
+        width: 100%;
+        height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* ── Top header ──
+       sticky di dalam main-area, z-index lebih tinggi dari sidebar overlay */
+    .top-header {
+        position: sticky;
+        top: 0;
+        padding: 0 16px;
+        gap: 8px;
+        z-index: 101;
+        flex-shrink: 0;
+    }
+
+    .sinora-full { display: none; }
+
+    .clock-badge {
+        padding: 5px 9px;
+        font-size: 11px;
+    }
+
+    /* ── Page content ── */
+    .page-content {
+        padding: 18px 20px;
+        overflow-y: visible;
+    }
+
+    /* ── Dashboard: stat 2 kolom di tablet ── */
+    .stat-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* ── Dashboard: main-grid 1 kolom ── */
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* ── Toolbar ── */
+    .toolbar {
+        padding: 10px 14px;
+        gap: 8px;
+    }
+
+    .search-wrap {
+        min-width: 160px;
+        max-width: 240px;
+    }
+
+    /* ── Table ── */
+    .table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* ── Modal ── */
+    .modal-box {
+        max-width: 340px;
+        margin: 0 16px;
+    }
+}
+
+
+/* =============================================================
+   3. MOBILE  (< 640px)
+   ============================================================= */
+
+@media (max-width: 639px) {
+
+    /* ── FIX BUG KONTEN TERPOTONG ───────────────────────────────
+       Root cause: main.css set .layout { height:100vh; overflow:hidden }
+       dan .main-area { overflow:hidden }. Di mobile ini memotong konten.
+       Solusi: layout tetap flex, tapi main-area & page-content bisa scroll. */
+    .layout {
+        height: 100vh;
+        overflow: hidden; /* tetap hidden agar sidebar drawer tidak shift layout */
+    }
+
+    .main-area {
+        flex: 1;
+        width: 100%;
+        min-width: 0;
+        height: 100vh;
+        overflow-y: auto;   /* ← main-area yang scroll, bukan body */
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .page-content {
+        flex: 1;
+        padding: 14px 12px;
+        overflow-y: visible;
+        height: auto;
+    }
+
+    /* ── Top header: sticky di dalam main-area ── */
+    .top-header {
+        position: sticky;
+        top: 0;
+        z-index: 101;
+        height: auto;
+        min-height: 52px;
+        padding: 8px 12px;
+        gap: 6px;
+        flex-wrap: nowrap;
+        flex-shrink: 0;
+    }
+
+    .header-title {
+        font-size: 18px;
+        gap: 1px;
+    }
+
+    .sinora-full { display: none; }
+
+    /* ── Clock & user: compact ── */
+    .clock-badge { display: none; }
+
+    .user-chip {
+        padding: 4px 8px 4px 4px;
+        gap: 6px;
+    }
+
+    .user-role { display: none; }
+
+    .user-name {
+        font-size: 11px;
+        max-width: 80px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* ── Dashboard ── */
+    .stat-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .stat-card {
+        padding: 16px;
+        gap: 12px;
+    }
+
+    .stat-value { font-size: 24px; }
+
+    .main-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    /* ── Page header & topbar ── */
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+
+    .page-header .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .page-topbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .page-topbar .btn-primary,
+    .page-topbar .btn-pdf,
+    .page-topbar .btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .page-topbar .badge {
+        align-self: flex-start;
+    }
+
+    .page-title    { font-size: 16px; }
+    .page-subtitle { font-size: 12px; }
+
+    /* ── Toolbar: vertikal ── */
+    .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        padding: 10px 12px;
+        overflow: visible; /* jangan clip shadow/border chip */
+    }
+
+    .search-wrap {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .toolbar-divider {
+        width: 100%;
+        height: 1px;
+        background: var(--slate-100);
+    }
+
+    /* Filter group: scroll horizontal
+       padding atas/bawah memberi ruang agar border chip.active (1.5px)
+       dan box-shadow tidak terpotong oleh overflow container            */
+    .filter-group {
+        width: 100%;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        gap: 5px;
+        padding: 3px 2px 5px;   /* top/bottom: cegah border chip terpotong */
+        margin-top: -3px;        /* kompensasi agar toolbar tidak bergeser  */
+        scrollbar-width: none;
+    }
+
+    .filter-group::-webkit-scrollbar { display: none; }
+
+    .sort-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* ── Tabel ── */
+    .table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        mask-image: linear-gradient(to right, black calc(100% - 24px), transparent 100%);
+        -webkit-mask-image: linear-gradient(to right, black calc(100% - 24px), transparent 100%);
+    }
+
+    .table-wrap.scrolled-end {
+        mask-image: none;
+        -webkit-mask-image: none;
+    }
+
+    /* Semua tabel: minimum agar tidak terlalu sempit */
+    table { min-width: 420px; }
+
+    /* Tabel meetings: kolom lebih banyak, perlu lebih lebar */
+    table:has(#meetingTbody) { min-width: 520px; }
+
+    /* Sembunyikan kolom Dibuat Oleh (4) & Pertanyaan (5) khusus meetings.
+       Gunakan class .col-hide-mobile di <th> & <td> yang ingin disembunyikan,
+       sehingga tidak memengaruhi tabel users sama sekali.                   */
+    .col-hide-mobile { display: none; }
+
+    .td-number {
+        width: 28px;
+        padding: 10px 8px;
+        font-size: 11px;
+    }
+
+    th, td { padding: 10px 12px; }
+
+    .judul-text { font-size: 12.5px; }
+    .judul-sub  { font-size: 10.5px; }
+
+    .btn-action {
+        padding: 5px 8px;
+        font-size: 11px;
+    }
+
+    /* ── Result info ── */
+    .result-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        padding: 4px 2px 8px;
+    }
+
+    /* ── Card ── */
+    .card-body   { padding: 14px; }
+    .card-header { padding: 11px 14px; }
+
+    /* ── Form: 1 kolom ── */
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .form-group.full { grid-column: 1; }
+
+    .form-footer {
+        flex-direction: column-reverse;
+        gap: 8px;
+        padding: 12px 14px;
+    }
+
+    .form-footer .btn-primary,
+    .form-footer .btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* ── Status pills (edit.blade) ── */
+    .status-pills { flex-direction: column; }
+
+    /* ── Show detail grid ── */
+    .detail-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .detail-item.full { grid-column: 1; }
+
+    /* ── Q&A ── */
+    .question-card { padding: 12px; }
+
+    .question-meta {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .qa-form-footer { flex-direction: column; }
+
+    .qa-form-footer .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* ── Alert ── */
+    .alert-error,
+    .alert-success {
+        padding: 10px 12px;
+        font-size: 12.5px;
+    }
+
+    /* ── Empty state ── */
+    .empty-state { padding: 36px 16px; }
+
+    /* ── Modal ── */
+    .modal-box {
+        max-width: calc(100vw - 32px);
+        margin: 0 16px;
+        padding: 22px 18px 18px;
+    }
+
+    .modal-footer { flex-direction: column; gap: 8px; }
+
+    .modal-footer .btn-secondary,
+    .modal-footer .btn-primary { width: 100%; }
+
+    /* ── Pagination ── */
+    .pagination-wrap {
+        padding: 10px 12px;
+        justify-content: center;
+    }
+}
+
+
+/* =============================================================
+   4. VERY SMALL MOBILE  (< 380px)
+   ============================================================= */
+
+@media (max-width: 379px) {
+    .top-header   { padding: 6px 10px; }
+    .header-title { font-size: 16px; }
+    .user-name    { display: none; }
+    .page-content { padding: 12px 10px; }
+    .stat-card    { padding: 14px 12px; }
+    .stat-value   { font-size: 22px; }
+}
+
+
+/* =============================================================
+   5. TABLE SCROLL HINT (mobile)
+   ============================================================= */
+
+@media (max-width: 639px) {
+    .table-scroll-hint {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        color: var(--slate-400);
+        margin-bottom: 4px;
+        padding-left: 2px;
+    }
+
+    .table-scroll-hint svg {
+        width: 12px;
+        height: 12px;
+        stroke: currentColor;
+        fill: none;
+        animation: nudgeRight 1.5s ease-in-out infinite;
+    }
+}
+
+@keyframes nudgeRight {
+    0%, 100% { transform: translateX(0); }
+    50%       { transform: translateX(4px); }
+}
+
+
+/* =============================================================
+   6. FULLCALENDAR — Mobile & Tablet Fix
+   ============================================================= */
+
+/*
+   Root cause kalender terpotong:
+   FullCalendar secara internal set width pada .fc-view-harness berdasarkan
+   render awal. Jika container berubah ukuran (misal sidebar collapse),
+   kalender tidak auto-resize. Solusi: force semua FC element max-width 100%
+   dan biarkan tabel scroll horizontal jika memang tidak muat.
+*/
+
+/* Base — pastikan kalender tidak overflow parent card */
+#calendar {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden; /* clip, bukan scroll — scroll ada di wrapper */
+}
+
+/* Wrapper scroll horizontal untuk tabel kalender */
+.fc .fc-view-harness {
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Paksa tabel FullCalendar ikuti lebar container */
+.fc table {
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: fixed !important; /* kolom dibagi rata */
+}
+
+/* Event text tidak meluber */
+.fc-event-title,
+.fc-event-main {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 1024px) {
+    /* Toolbar kalender: tombol compact */
+    .fc .fc-toolbar {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .fc .fc-toolbar-title {
+        font-size: 14px !important;
+    }
+
+    .fc .fc-button {
+        padding: 4px 8px !important;
+        font-size: 12px !important;
+    }
+
+    /* Card kalender: auto height, tidak ada clipping */
+    .main-grid .card:first-child {
+        height: auto;
+    }
+
+    .main-grid .card:first-child .card-body {
+        overflow: visible;
+        height: auto;
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+}
+
+@media (max-width: 639px) {
+    /* Font & ukuran toolbar */
+    .fc .fc-toolbar-title {
+        font-size: 13px !important;
+    }
+
+    .fc .fc-button {
+        padding: 3px 7px !important;
+        font-size: 11px !important;
+    }
+
+    .fc .fc-toolbar {
+        gap: 4px;
+        margin-bottom: 8px !important;
+    }
+
+    /* Header hari (Min, Sen, Sel ...) — sangat compact */
+    .fc .fc-col-header-cell-cushion {
+        font-size: 10px;
+        padding: 3px 1px;
+    }
+
+    /* Tanggal di setiap cell */
+    .fc .fc-daygrid-day-top {
+        font-size: 10px;
+        padding: 2px 3px;
+    }
+
+    /* Tinggi cell minimal */
+    .fc .fc-daygrid-day-frame {
+        min-height: 44px !important;
+    }
+
+    /* Event pill sangat compact */
+    .fc-event {
+        font-size: 9px !important;
+        padding: 1px 3px !important;
+        border-radius: 3px !important;
+    }
+
+    /* Kurangi padding card body agar kalender punya ruang maksimal */
+    .card-body {
+        padding: 10px 8px !important;
+    }
+}
+
+
+/* =============================================================
+   7. SIDEBAR CLOSE BUTTON — pastikan selalu bisa diklik
+   ============================================================= */
+
+/* Close button harus di atas semua konten sidebar */
+.sidebar-close-btn {
+    z-index: 10;
+    position: absolute;
+    top: 14px;
+    right: 14px;
+}
+
+/* =============================================================
+   8. TOMBOL KEMBALI (.btn-back)
+   Dipakai di show.blade & edit.blade — tampil di semua ukuran
+   ============================================================= */
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--slate-200);
+    background: var(--white);
+    color: var(--slate-600);
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;          /* sejajar secara visual dengan page-title */
+    transition: background .15s, border-color .15s, color .15s;
+}
+
+.btn-back:hover {
+    background: var(--slate-50);
+    border-color: var(--slate-300);
+    color: var(--slate-900);
+}
+
+.btn-back svg {
+    stroke: currentColor;
+    flex-shrink: 0;
+}
+
+/* Di mobile: sembunyikan label teks, tampilkan ikon saja */
+@media (max-width: 639px) {
+    .btn-back {
+        padding: 7px 10px;
+    }
+
+    .btn-back-label {
+        display: none;
+    }
+}

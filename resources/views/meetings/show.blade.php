@@ -2,9 +2,18 @@
 
 {{-- Top Bar --}}
 <div class="page-topbar">
-  <div>
-    <div class="page-title">{{ $meeting->judul }}</div>
-    <div class="page-subtitle">Detail Rapat</div>
+  <div style="display:flex; align-items:flex-start; gap:12px;">
+    {{-- Tombol Kembali --}}
+    <a href="{{ route('meetings.index') }}" class="btn-back" title="Kembali ke daftar rapat">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+      </svg>
+      <span class="btn-back-label">Kembali</span>
+    </a>
+    <div>
+      <div class="page-title">{{ $meeting->judul }}</div>
+      <div class="page-subtitle">Detail Rapat</div>
+    </div>
   </div>
   <a href="{{ route('meetings.pdf', $meeting->id) }}" class="btn-pdf">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

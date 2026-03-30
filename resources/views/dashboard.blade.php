@@ -182,6 +182,14 @@
             height: 'auto',
         });
         calendar.render();
+
+        // Simpan instance ke elemen agar bisa di-updateSize() dari sidebar script
+        calendarEl._calendar = calendar;
+
+        // Juga re-render kalender saat window resize (misal rotate device)
+        window.addEventListener('resize', function () {
+            calendar.updateSize();
+        });
     });
     </script>
     @endpush

@@ -15,10 +15,9 @@
         
 
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @vite(['resources/css/main.css', 'resources/css/responsive.css', 'resources/css/auth.css', 'resources/css/app.css', 'resources/js/app.js'])
 
         {{-- Styles --}}
-        <link rel="stylesheet" href="{{ asset('css/main.css') }}">
 
 
     </head>
@@ -27,7 +26,17 @@
         <div class="layout">
 
             {{-- ═══════════════ SIDEBAR ═══════════════ --}}
-            <aside class="sidebar">
+
+            <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+            <aside class="sidebar" id="sidebar">
+
+                <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Tutup menu">
+                    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
 
                 <div class="sidebar-brand">
                     <div class="sidebar-brand-icon">
@@ -93,6 +102,15 @@
 
                 {{-- HEADER --}}
                 <header class="top-header">
+
+                    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Buka menu">
+                        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="6" x2="21" y2="6"/>
+                            <line x1="3" y1="12" x2="21" y2="12"/>
+                            <line x1="3" y1="18" x2="21" y2="18"/>
+                        </svg>
+                    </button>
+
                     <div class="header-title">
                         <span class="sinora-si">SI</span><span class="sinora-nora">NORA</span>
                         <span class="sinora-full">Sistem Informasi Notulensi Rapat Dinas</span>
@@ -141,6 +159,78 @@
         }
         setInterval(updateClock, 1000);
         updateClock();
+        </script>
+
+        {{-- Sidebar drawer script --}}
+        <script>
+        (function () {
+            var sidebar   = document.getElementById('sidebar');      // <-- id="sidebar" di <aside>
+            var overlay   = document.getElementById('sidebarOverlay');
+            var hamburger = document.getElementById('hamburgerBtn');
+            var closeBtn  = document.getElementById('sidebarCloseBtn');
+
+            function triggerCalendarResize() {
+                // Paksa FullCalendar re-hitung ukuran setelah sidebar animasi selesai
+                setTimeout(function () {
+                    var calEl = document.getElementById('calendar');
+                    if (calEl && calEl._calendar) {
+                        calEl._calendar.updateSize();
+                    }
+                    // Fallback: dispatch resize event
+                    window.dispatchEvent(new Event('resize'));
+                }, 300); // setelah animasi 280ms selesai
+            }
+
+            function openSidebar() {
+                if (!sidebar) return;
+                sidebar.classList.add('sidebar-open');
+                if (overlay) overlay.classList.add('active');
+                document.documentElement.style.overflow = 'hidden';
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeSidebar() {
+                if (!sidebar) return;
+                sidebar.classList.remove('sidebar-open');
+                if (overlay) overlay.classList.remove('active');
+                document.documentElement.style.overflow = '';
+                document.body.style.overflow = '';
+                triggerCalendarResize(); // re-render kalender setelah sidebar tutup
+            }
+
+            if (hamburger) hamburger.addEventListener('click', openSidebar);
+            if (closeBtn)  closeBtn.addEventListener('click', closeSidebar);
+            if (overlay)   overlay.addEventListener('click', closeSidebar);
+
+            // Tutup sidebar saat klik nav-link (navigasi)
+            if (sidebar) {
+                sidebar.querySelectorAll('.nav-link').forEach(function (link) {
+                    link.addEventListener('click', function () {
+                        setTimeout(closeSidebar, 150);
+                    });
+                });
+            }
+
+            // Tutup sidebar & reset overflow saat resize ke desktop
+            window.addEventListener('resize', function () {
+                if (window.innerWidth > 1024) {
+                    closeSidebar();
+                }
+            });
+
+            // ESC key untuk tutup sidebar
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closeSidebar();
+            });
+
+            // Table scroll mask helper
+            document.querySelectorAll('.table-wrap').forEach(function (wrap) {
+                wrap.addEventListener('scroll', function () {
+                    var atEnd = wrap.scrollLeft + wrap.clientWidth >= wrap.scrollWidth - 4;
+                    wrap.classList.toggle('scrolled-end', atEnd);
+                });
+            });
+        })();
         </script>
 
         @stack('scripts')
