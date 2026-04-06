@@ -78,7 +78,7 @@ tinymce.init({
 </div>
 @endif
 
-<form action="{{ route('meetings.update', $meeting->id) }}" method="POST">
+<form action="{{ route('meetings.update', $meeting->id) }}" method="POST" enctype="multipart/form-data">
 @csrf
 @method('PUT')
 
@@ -223,7 +223,58 @@ tinymce.init({
     </div>
   </div>
 
-  {{-- ── Card 3: Status ── --}}
+  {{-- ── Card 3: Dokumentasi Foto ── --}}
+  <div class="card">
+    <div class="card-header">
+      <span class="card-header-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21 15 16 10 5 21"/>
+        </svg>
+        Dokumentasi Foto
+      </span>
+      <span style="font-size:11px;color:#94a3b8;">Maks. 3MB per foto (JPG, PNG, WEBP)</span>
+    </div>
+    <div class="card-body">
+
+      {{-- Foto yang sudah ada --}}
+      @if($meeting->dokumentasi->count())
+      <div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+        @foreach($meeting->dokumentasi as $foto)
+        <div style="position:relative; width:130px;">
+          <img src="{{ asset('storage/' . $foto->path_file) }}"
+              alt="{{ $foto->nama_file }}"
+              style="width:130px; height:100px; object-fit:cover; border-radius:8px; border:1px solid #e2e8f0;">
+          {{-- Tombol hapus --}}
+          <form action="{{ route('meetings.dokumentasi.delete', $meeting->id) }}" method="POST"
+                style="position:absolute; top:4px; right:4px;"
+                onsubmit="return confirm('Hapus foto ini?')">
+            @csrf
+            @method('DELETE')
+            <input type="hidden" name="dok_id" value="{{ $foto->id }}">
+            <button type="submit"
+              style="background:rgba(239,68,68,0.85); border:none; border-radius:50%; width:24px; height:24px;
+                    color:#fff; cursor:pointer; font-size:14px; line-height:1; display:flex; align-items:center; justify-content:center;">
+              &times;
+            </button>
+          </form>
+          <div style="font-size:10px; color:#94a3b8; margin-top:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+            {{ $foto->nama_file }}
+          </div>
+        </div>
+        @endforeach
+      </div>
+      @endif
+
+      {{-- Upload foto baru --}}
+      <label class="form-label">Tambah Foto Baru</label>
+      <input type="file" name="dokumentasi[]" multiple accept="image/*" class="form-input">
+      <span class="form-hint">Pilih lebih dari satu file untuk upload sekaligus.</span>
+      @error('dokumentasi.*') <span class="form-error">{{ $message }}</span> @enderror
+    </div>
+  </div>
+
+  {{-- ── Card 4: Status ── --}}
   <div class="card">
     <div class="card-header">
       <span class="card-header-title">

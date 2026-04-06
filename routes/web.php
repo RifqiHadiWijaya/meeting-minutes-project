@@ -35,6 +35,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/meetings/{meeting}/pdf',
         [MeetingController::class, 'exportPdf'])
         ->name('meetings.pdf');
+
+    // Hapus satu foto dokumentasi
+    Route::delete('/meetings/{meeting}/dokumentasi', [MeetingController::class, 'deleteDokumentasi'])
+        ->name('meetings.dokumentasi.delete');
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {

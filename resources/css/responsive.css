@@ -667,36 +667,45 @@
    Dipakai di show.blade & edit.blade — tampil di semua ukuran
    ============================================================= */
 
+/* Desktop (> 1024px): tombol kembali disembunyikan —
+   user sudah punya sidebar untuk navigasi                     */
 .btn-back {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 12px;
-    border-radius: var(--radius-md);
-    border: 1.5px solid var(--slate-200);
-    background: var(--white);
-    color: var(--slate-600);
-    font-size: 13px;
-    font-weight: 500;
-    text-decoration: none;
-    white-space: nowrap;
-    flex-shrink: 0;
-    margin-top: 2px;          /* sejajar secara visual dengan page-title */
-    transition: background .15s, border-color .15s, color .15s;
+    display: none;
 }
 
-.btn-back:hover {
-    background: var(--slate-50);
-    border-color: var(--slate-300);
-    color: var(--slate-900);
+/* Tablet & Mobile (≤ 1024px): tampilkan tombol kembali       */
+@media (max-width: 1024px) {
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 12px;
+        border-radius: var(--radius-md);
+        border: 1.5px solid var(--slate-200);
+        background: var(--white);
+        color: var(--slate-600);
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        white-space: nowrap;
+        flex-shrink: 0;
+        margin-top: 2px;
+        transition: background .15s, border-color .15s, color .15s;
+    }
+
+    .btn-back:hover {
+        background: var(--slate-50);
+        border-color: var(--slate-300);
+        color: var(--slate-900);
+    }
+
+    .btn-back svg {
+        stroke: currentColor;
+        flex-shrink: 0;
+    }
 }
 
-.btn-back svg {
-    stroke: currentColor;
-    flex-shrink: 0;
-}
-
-/* Di mobile: sembunyikan label teks, tampilkan ikon saja */
+/* Mobile (< 640px): sembunyikan label, tampilkan ikon saja   */
 @media (max-width: 639px) {
     .btn-back {
         padding: 7px 10px;

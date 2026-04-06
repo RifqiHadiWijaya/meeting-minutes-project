@@ -34,6 +34,11 @@ class Meeting extends Model
             ->whereNull('parent_id');
     }
 
+    public function dokumentasi()
+    {
+        return $this->hasMany(MeetingDokumentasi::class);
+    }
+
     // ── Accessors ──
 
     /**

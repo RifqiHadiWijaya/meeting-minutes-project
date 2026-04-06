@@ -474,8 +474,6 @@ html, body {
     border-radius: 4px;
     font-size: 11px;
     padding: 1px 4px;
-    background: var(--blue-500) !important;
-    border-color: var(--blue-600) !important;
 }
 
 /* Recent meetings */

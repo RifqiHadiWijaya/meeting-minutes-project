@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Meeting;
+use App\Models\MeetingDokumentasi;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class MeetingController extends Controller
@@ -103,28 +104,43 @@ class MeetingController extends Controller
         $this->authorize('update', $meeting);
 
         $request->validate([
-            'judul' => 'required|string|max:255',
-            'tanggal' => 'required|date',
-            'waktu' => 'required',
-            'lokasi' => 'required|string|max:255',
-            'jenis' => 'nullable|string|max:255',
-            'topik' => 'nullable|string',
-            'partisipan' => 'nullable|string',
-            'notulensi' => 'nullable|string',
-            'status' => 'required|in:scheduled,completed'
+            'judul'          => 'required|string|max:255',
+            'tanggal'        => 'required|date',
+            'waktu'          => 'required',
+            'lokasi'         => 'required|string|max:255',
+            'jenis'          => 'nullable|string|max:255',
+            'topik'          => 'nullable|string',
+            'partisipan'     => 'nullable|string',
+            'notulensi'      => 'nullable|string',
+            'status'         => 'required|in:scheduled,completed',
+            // Validasi foto
+            'dokumentasi'    => 'nullable|array',
+            'dokumentasi.*'  => 'image|mimes:jpg,jpeg,png,webp|max:3072',
         ]);
 
         $meeting->update([
-            'judul' => $request->judul,
-            'tanggal' => $request->tanggal,
-            'waktu' => $request->waktu,
-            'lokasi' => $request->lokasi,
-            'jenis' => $request->jenis,
-            'topik' => $request->topik,
+            'judul'      => $request->judul,
+            'tanggal'    => $request->tanggal,
+            'waktu'      => $request->waktu,
+            'lokasi'     => $request->lokasi,
+            'jenis'      => $request->jenis,
+            'topik'      => $request->topik,
             'partisipan' => $request->partisipan,
-            'notulensi' => $request->notulensi,
-            'status' => $request->status,
+            'notulensi'  => $request->notulensi,
+            'status'     => $request->status,
         ]);
+
+        // Simpan foto-foto baru jika ada
+        if ($request->hasFile('dokumentasi')) {
+            foreach ($request->file('dokumentasi') as $file) {
+                $path = $file->store('dokumentasi', 'public');
+                MeetingDokumentasi::create([
+                    'meeting_id' => $meeting->id,
+                    'nama_file'  => $file->getClientOriginalName(),
+                    'path_file'  => $path,
+                ]);
+            }
+        }
 
         return redirect()->route('meetings.index')
             ->with('success', 'Rapat berhasil diupdate');
@@ -135,5 +151,20 @@ class MeetingController extends Controller
         $pdf = Pdf::loadView('meetings.pdf', compact('meeting'));
 
         return $pdf->download('notulensi-'.$meeting->judul.'.pdf');
+    }
+
+    public function deleteDokumentasi(Request $request, Meeting $meeting)
+    {
+        $this->authorize('update', $meeting);
+
+        $dok = MeetingDokumentasi::where('id', $request->dok_id)
+                                ->where('meeting_id', $meeting->id)
+                                ->firstOrFail();
+
+        // Hapus file dari storage
+        \Storage::disk('public')->delete($dok->path_file);
+        $dok->delete();
+
+        return back()->with('success', 'Foto berhasil dihapus');
     }
 }

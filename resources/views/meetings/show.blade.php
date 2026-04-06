@@ -114,6 +114,35 @@
   </div>
 </div>
 
+{{-- Dokumentasi Foto --}}
+@if($meeting->dokumentasi->count())
+<div class="card">
+  <div class="card-header">
+    <span class="card-header-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+        <polyline points="21 15 16 10 5 21"/>
+      </svg>
+      Dokumentasi Foto
+    </span>
+    <span style="font-size:12px; color:#94a3b8;">{{ $meeting->dokumentasi->count() }} foto</span>
+  </div>
+  <div class="card-body">
+    <div style="display:flex; flex-wrap:wrap; gap:12px;">
+      @foreach($meeting->dokumentasi as $foto)
+      <a href="{{ asset('storage/' . $foto->path_file) }}" target="_blank" title="{{ $foto->nama_file }}">
+        <img src="{{ asset('storage/' . $foto->path_file) }}"
+             alt="{{ $foto->nama_file }}"
+             style="width:150px; height:110px; object-fit:cover; border-radius:8px;
+                    border:1px solid #e2e8f0; transition: opacity .2s;"
+             onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+      </a>
+      @endforeach
+    </div>
+  </div>
+</div>
+@endif
+
 {{-- Pertanyaan & Klarifikasi --}}
 <div class="card qa-section">
   <div class="card-header">
