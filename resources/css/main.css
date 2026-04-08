@@ -1692,13 +1692,236 @@ tbody tr:hover {
 }
 
 /* =============================================================
-   RESPONSIVE
+   PARTISIPAN — Tabel Input Dinamis (create & edit)
+   Tambahkan di bagian bawah main.css
    ============================================================= */
 
-@media (max-width: 900px) {
-    .main-grid  { grid-template-columns: 1fr; }
-    .stat-grid  { grid-template-columns: 1fr; }
-    .form-grid  { grid-template-columns: 1fr; }
-    .detail-grid { grid-template-columns: 1fr; }
-    .page-content { padding: 16px; }
+/* Wrapper tabel */
+.partisipan-wrap {
+    border: 1.5px solid var(--slate-200);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--white);
+}
+
+/* Tabel */
+.partisipan-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.partisipan-table thead {
+    background: var(--slate-50);
+    border-bottom: 1.5px solid var(--slate-200);
+}
+
+.partisipan-table th {
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--slate-500);
+    white-space: nowrap;
+    border-bottom: none;
+}
+
+.partisipan-table tbody tr {
+    border-bottom: 1px solid var(--slate-100);
+    transition: background .1s;
+}
+
+.partisipan-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.partisipan-table tbody tr:hover {
+    background: var(--blue-50);
+    transform: none;  /* override global tbody tr:hover */
+    box-shadow: none;
+}
+
+.partisipan-table td {
+    padding: 7px 10px;
+    vertical-align: middle;
+}
+
+.partisipan-table .td-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--slate-400);
+    text-align: center;
+    width: 36px;
+    min-width: 36px;
+}
+
+/* Input dalam tabel — lebih ringkas */
+.partisipan-table .form-input,
+.partisipan-table .form-select {
+    padding: 6px 10px;
+    font-size: 12.5px;
+    height: auto;
+    background: var(--white);
+    border-color: var(--slate-200);
+}
+
+.partisipan-table .form-input:focus,
+.partisipan-table .form-select:focus {
+    border-color: var(--blue-400);
+    box-shadow: 0 0 0 2px rgba(59,130,246,.1);
+}
+
+/* Tombol hapus baris */
+.partisipan-del-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px; height: 26px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--danger-border);
+    background: var(--danger-bg);
+    color: var(--danger-text);
+    cursor: pointer;
+    transition: all .15s;
+    padding: 0;
+}
+
+.partisipan-del-btn:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    transform: scale(1.08);
+}
+
+/* Footer tabel: tombol tambah + counter */
+.partisipan-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-top: 1.5px solid var(--slate-100);
+    background: var(--slate-50);
+}
+
+.partisipan-add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--blue-600);
+    background: var(--blue-50);
+    border: 1.5px solid var(--blue-100);
+    border-radius: var(--radius-sm);
+    padding: 5px 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all .15s;
+}
+
+.partisipan-add-btn:hover {
+    background: var(--blue-100);
+    border-color: var(--blue-300);
+    transform: translateY(-1px);
+}
+
+.partisipan-count-label {
+    font-size: 11px;
+    color: var(--slate-400);
+    font-weight: 600;
+    margin-left: auto;
+}
+
+/* =============================================================
+   PARTISIPAN — Tampilan Detail (show)
+   ============================================================= */
+
+.partisipan-display {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 6px;
+    border: 1.5px solid var(--slate-200);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+/* Satu kelompok peran */
+.partisipan-group {
+    border-bottom: 1px solid var(--slate-200);
+}
+
+.partisipan-group:last-child {
+    border-bottom: none;
+}
+
+/* Header kelompok */
+.partisipan-group-header {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    border-bottom: 1px solid transparent;
+}
+
+.partisipan-group-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.partisipan-group-count {
+    margin-left: auto;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: var(--radius-full);
+}
+
+/* Baris nama */
+.partisipan-names {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 14px 12px;
+    background: var(--white);
+}
+
+/* Chip nama individu */
+.partisipan-name-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--slate-50);
+    border: 1.5px solid var(--slate-200);
+    border-radius: var(--radius-full);
+    padding: 4px 10px 4px 4px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--slate-800);
+    transition: border-color .15s, background .15s;
+}
+
+.partisipan-name-chip:hover {
+    border-color: var(--slate-300);
+    background: var(--slate-100);
+}
+
+/* Avatar inisial dalam chip */
+.partisipan-name-avatar {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 800;
+    color: #fff;
+    flex-shrink: 0;
+    text-transform: uppercase;
 }

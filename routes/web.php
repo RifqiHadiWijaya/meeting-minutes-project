@@ -21,6 +21,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 Route::middleware('auth')->group(function () {
 
+    // ⚠️  Route spesifik HARUS di atas resource agar tidak tertimpa oleh
+    //     DELETE /meetings/{meeting} → destroy() milik resource.
+    Route::delete('/meetings/{meeting}/dokumentasi',
+        [MeetingController::class, 'deleteDokumentasi'])
+        ->name('meetings.dokumentasi.delete');
+
+    Route::get('/meetings/{meeting}/pdf',
+        [MeetingController::class, 'exportPdf'])
+        ->name('meetings.pdf');
+
     Route::resource('meetings', MeetingController::class);
 
     Route::post('/meetings/{meeting}/questions',
@@ -30,15 +40,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/questions/{question}/reply',
         [MeetingQuestionController::class, 'reply'])
         ->name('questions.reply');
-
-    // Route PDF
-    Route::get('/meetings/{meeting}/pdf',
-        [MeetingController::class, 'exportPdf'])
-        ->name('meetings.pdf');
-
-    // Hapus satu foto dokumentasi
-    Route::delete('/meetings/{meeting}/dokumentasi', [MeetingController::class, 'deleteDokumentasi'])
-        ->name('meetings.dokumentasi.delete');
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {

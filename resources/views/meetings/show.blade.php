@@ -3,7 +3,6 @@
 {{-- Top Bar --}}
 <div class="page-topbar">
   <div style="display:flex; align-items:flex-start; gap:12px;">
-    {{-- Tombol Kembali --}}
     <a href="{{ route('meetings.index') }}" class="btn-back" title="Kembali ke daftar rapat">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
@@ -38,13 +37,9 @@
       Informasi Rapat
     </span>
     @if($meeting->status === 'completed')
-      <span class="badge badge-completed">
-        <span class="badge-dot"></span> Selesai
-      </span>
+      <span class="badge badge-completed"><span class="badge-dot"></span> Selesai</span>
     @else
-      <span class="badge badge-scheduled">
-        <span class="badge-dot"></span> Terjadwal
-      </span>
+      <span class="badge badge-scheduled"><span class="badge-dot"></span> Terjadwal</span>
     @endif
   </div>
   <div class="card-body">
@@ -73,10 +68,89 @@
         <span class="detail-label">Topik</span>
         <span class="detail-value">{{ $meeting->topik }}</span>
       </div>
+
+      {{-- ── Partisipan Terstruktur ── --}}
       <div class="detail-item full">
         <span class="detail-label">Partisipan</span>
-        <span class="detail-value">{{ $meeting->partisipan }}</span>
+
+        @php
+          /* Parse JSON; fallback ke teks lama (string biasa) */
+          $rawPartisipan = $meeting->partisipan;
+          $rows = [];
+          if ($rawPartisipan) {
+            $decoded = json_decode($rawPartisipan, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+              $rows = $decoded;
+            }
+          }
+
+          /* Kelompokkan berdasarkan peran */
+          $grouped = [];
+          foreach ($rows as $row) {
+            if (empty($row['nama']) && empty($row['peran'])) continue;
+            $peran = $row['peran'] ?? 'Peserta';
+            $grouped[$peran][] = $row['nama'] ?? '';
+          }
+
+          /* Urutan tampilan yang diinginkan */
+          $roleOrder = ['Pimpinan Rapat','Sekretaris / Notulis','Narasumber','Peserta','Undangan'];
+          $orderedGroups = [];
+          foreach ($roleOrder as $r) {
+            if (isset($grouped[$r])) $orderedGroups[$r] = $grouped[$r];
+          }
+          /* Peran lainnya (custom) di akhir */
+          foreach ($grouped as $r => $names) {
+            if (!in_array($r, $roleOrder)) $orderedGroups[$r] = $names;
+          }
+        @endphp
+
+        @if(count($orderedGroups))
+          <div class="partisipan-display">
+            @foreach($orderedGroups as $peran => $names)
+              <div class="partisipan-group">
+                {{-- Ikon per peran --}}
+                @php
+                  $roleColors = [
+                    'Pimpinan Rapat'      => ['bg' => '#eff6ff', 'border' => '#bfdbfe', 'color' => '#1d4ed8', 'dot' => '#3b82f6'],
+                    'Sekretaris / Notulis'=> ['bg' => '#ede9fe', 'border' => '#ddd6fe', 'color' => '#7c3aed', 'dot' => '#8b5cf6'],
+                    'Narasumber'          => ['bg' => '#fff7ed', 'border' => '#fed7aa', 'color' => '#c2410c', 'dot' => '#f97316'],
+                    'Peserta'             => ['bg' => '#f0fdf4', 'border' => '#bbf7d0', 'color' => '#15803d', 'dot' => '#22c55e'],
+                    'Undangan'            => ['bg' => '#f8fafc', 'border' => '#e2e8f0', 'color' => '#475569', 'dot' => '#94a3b8'],
+                  ];
+                  $style = $roleColors[$peran] ?? ['bg' => '#f8fafc', 'border' => '#e2e8f0', 'color' => '#475569', 'dot' => '#94a3b8'];
+                @endphp
+                <div class="partisipan-group-header"
+                     style="background:{{ $style['bg'] }}; border-bottom-color:{{ $style['border'] }}; color:{{ $style['color'] }};">
+                  <span class="partisipan-group-dot" style="background:{{ $style['dot'] }};"></span>
+                  {{ $peran }}
+                  <span class="partisipan-group-count"
+                        style="background:{{ $style['border'] }}; color:{{ $style['color'] }};">
+                    {{ count(array_filter($names)) }}
+                  </span>
+                </div>
+                <div class="partisipan-names">
+                  @foreach($names as $nama)
+                    @if(trim($nama))
+                      <span class="partisipan-name-chip">
+                        <span class="partisipan-name-avatar" style="background:{{ $style['dot'] }};">
+                          {{ mb_strtoupper(mb_substr(trim($nama), 0, 1)) }}
+                        </span>
+                        {{ trim($nama) }}
+                      </span>
+                    @endif
+                  @endforeach
+                </div>
+              </div>
+            @endforeach
+          </div>
+        @elseif($rawPartisipan)
+          {{-- Fallback: data lama berupa plain text --}}
+          <span class="detail-value" style="white-space:pre-line;">{{ $rawPartisipan }}</span>
+        @else
+          <span class="detail-value" style="color:#94a3b8;">—</span>
+        @endif
       </div>
+
       <div class="detail-item">
         <span class="detail-label">Dibuat oleh</span>
         <span class="detail-value">{{ $meeting->display_creator_name }}</span>
@@ -152,13 +226,10 @@
       </svg>
       Pertanyaan &amp; Klarifikasi
     </span>
-    <span class="qa-counter">
-      {{ $meeting->questions->count() }} pertanyaan
-    </span>
+    <span class="qa-counter">{{ $meeting->questions->count() }} pertanyaan</span>
   </div>
   <div class="card-body">
 
-    {{-- Form Pertanyaan (Viewer) --}}
     @if(auth()->user()->role === 'viewer')
     <form action="{{ route('questions.store', $meeting->id) }}" method="POST" class="qa-form qa-question-form" style="margin-bottom: 24px;">
       @csrf
@@ -175,7 +246,6 @@
     </form>
     @endif
 
-    {{-- List Pertanyaan --}}
     <div class="qa-list"></div>
     @forelse($meeting->questions as $question)
     <div class="question-card">
@@ -188,7 +258,6 @@
       </div>
       <div class="question-isi">{{ $question->isi }}</div>
 
-      {{-- Replies --}}
       @if($question->replies->count())
       <div class="reply-wrap">
         @foreach($question->replies as $reply)
@@ -205,7 +274,6 @@
       </div>
       @endif
 
-      {{-- Form Jawaban (Notulis & Creator) --}}
       @if(auth()->user()->role === 'notulis' && auth()->id() === $meeting->created_by)
       <div class="reply-form-wrap">
         <div class="reply-form-label">Tulis Jawaban</div>
@@ -234,7 +302,7 @@
       <div>Belum ada pertanyaan untuk rapat ini.</div>
     </div>
     @endforelse
-    </div> {{-- /.qa-list --}}
+    </div>
 
   </div>
 </div>

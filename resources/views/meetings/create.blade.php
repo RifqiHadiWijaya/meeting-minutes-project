@@ -1,6 +1,5 @@
 <x-app-layout>
 
-
 {{-- Top Bar --}}
 <div class="page-topbar">
   <div>
@@ -40,7 +39,7 @@
     </span>
   </div>
 
-  <form action="{{ route('meetings.store') }}" method="POST">
+  <form action="{{ route('meetings.store') }}" method="POST" id="form-create">
     @csrf
     <div class="card-body">
       <div class="form-grid">
@@ -116,8 +115,8 @@
           <label class="form-label">Jenis Rapat <span class="required">*</span></label>
           <select name="jenis" class="form-select {{ $errors->has('jenis') ? 'is-error' : '' }}" required>
             <option value="" disabled {{ old('jenis') ? '' : 'selected' }}>Pilih jenis rapat...</option>
-            <option value="Internal DISKOMINFO"   {{ old('jenis') === 'Internal DISKOMINFO'   ? 'selected' : '' }}>Internal DISKOMINFO</option>
-            <option value="Eksternal DISKOMINFO"     {{ old('jenis') === 'Eksternal DISKOMINFO'     ? 'selected' : '' }}>Eksternal DISKOMINFO</option>
+            <option value="Internal DISKOMINFO"  {{ old('jenis') === 'Internal DISKOMINFO'  ? 'selected' : '' }}>Internal DISKOMINFO</option>
+            <option value="Eksternal DISKOMINFO" {{ old('jenis') === 'Eksternal DISKOMINFO' ? 'selected' : '' }}>Eksternal DISKOMINFO</option>
           </select>
           @error('jenis') <span class="form-error">{{ $message }}</span> @enderror
         </div>
@@ -133,13 +132,43 @@
           @error('topik') <span class="form-error">{{ $message }}</span> @enderror
         </div>
 
-        {{-- Partisipan --}}
+        {{-- ── Partisipan Dinamis ── --}}
+        <div class="form-section-label">Daftar Partisipan</div>
+
         <div class="form-group full">
-          <label class="form-label">Partisipan <span class="required">*</span></label>
-          <textarea name="partisipan" class="form-textarea {{ $errors->has('partisipan') ? 'is-error' : '' }}"
-            placeholder="Daftar nama atau jabatan peserta rapat, pisahkan dengan koma atau baris baru..." required>{{ old('partisipan') }}</textarea>
-          <span class="form-hint">Contoh: Kepala Dinas, Sekretaris, Kabid Perencanaan, …</span>
+          {{-- Hidden field — dikirim ke server sebagai JSON --}}
+          <input type="hidden" name="partisipan" id="partisipan-json">
+
+          {{-- Tabel --}}
+          <div class="partisipan-wrap">
+            <table class="partisipan-table" id="partisipan-table">
+              <thead>
+                <tr>
+                  <th style="width:36px;">#</th>
+                  <th>Nama</th>
+                  <th style="width:220px;">Peran / Jabatan</th>
+                  <th style="width:44px;"></th>
+                </tr>
+              </thead>
+              <tbody id="partisipan-tbody">
+                {{-- baris awal via JS --}}
+              </tbody>
+            </table>
+
+            {{-- Tombol tambah baris --}}
+            <div class="partisipan-actions">
+              <button type="button" class="partisipan-add-btn" id="btn-add-row">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Tambah Peserta
+              </button>
+              <span class="partisipan-count-label" id="partisipan-count">0 peserta</span>
+            </div>
+          </div>
+
           @error('partisipan') <span class="form-error">{{ $message }}</span> @enderror
+          <span class="form-hint">Isi nama dan peran/jabatan setiap peserta. Baris kosong akan diabaikan.</span>
         </div>
 
       </div>
@@ -165,5 +194,138 @@
 
   </form>
 </div>
+
+@push('scripts')
+<script>
+/* ── Partisipan Roles ── */
+const ROLES = [
+  'Pimpinan Rapat',
+  'Sekretaris / Notulis',
+  'Narasumber',
+  'Peserta',
+  'Undangan',
+];
+
+const tbody   = document.getElementById('partisipan-tbody');
+const jsonIn  = document.getElementById('partisipan-json');
+const countEl = document.getElementById('partisipan-count');
+
+/* Nilai lama saat validasi gagal */
+let initialRows = [];
+try {
+  const old = @json(old('partisipan'));
+  if (old) initialRows = JSON.parse(old);
+} catch(e) {}
+
+if (!initialRows.length) {
+  initialRows = [
+    { nama: '', peran: 'Pimpinan Rapat' },
+    { nama: '', peran: 'Sekretaris / Notulis' },
+    { nama: '', peran: 'Peserta' },
+  ];
+}
+
+function buildRoleOptions(selected) {
+  return ROLES.map(r =>
+    `<option value="${r}" ${r === selected ? 'selected' : ''}>${r}</option>`
+  ).join('') +
+  `<option value="Lainnya" ${ !ROLES.includes(selected) && selected ? 'selected' : '' }>Lainnya…</option>`;
+}
+
+function addRow(data = { nama: '', peran: 'Peserta' }) {
+  const tr = document.createElement('tr');
+  tr.className = 'partisipan-row';
+  tr.style.animation = 'rowIn .2s ease both';
+
+  const isOther = data.peran && !ROLES.includes(data.peran);
+
+  tr.innerHTML = `
+    <td class="td-num"></td>
+    <td>
+      <input type="text" class="form-input p-nama" placeholder="Nama peserta…" value="${escHtml(data.nama || '')}">
+    </td>
+    <td>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <select class="form-select p-peran" style="flex:1;">
+          ${buildRoleOptions(isOther ? 'Lainnya' : (data.peran || 'Peserta'))}
+        </select>
+        <input type="text" class="form-input p-peran-custom"
+          placeholder="Tulis peran…"
+          value="${isOther ? escHtml(data.peran) : ''}"
+          style="flex:1; display:${isOther ? 'block' : 'none'};">
+      </div>
+    </td>
+    <td>
+      <button type="button" class="partisipan-del-btn" title="Hapus baris">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </td>`;
+
+  /* Toggle custom input */
+  tr.querySelector('.p-peran').addEventListener('change', function() {
+    const custom = tr.querySelector('.p-peran-custom');
+    if (this.value === 'Lainnya') {
+      custom.style.display = 'block';
+      custom.focus();
+    } else {
+      custom.style.display = 'none';
+      custom.value = '';
+    }
+    syncJson();
+  });
+
+  /* Delete row */
+  tr.querySelector('.partisipan-del-btn').addEventListener('click', function() {
+    if (tbody.querySelectorAll('.partisipan-row').length <= 1) return; // keep min 1
+    tr.style.animation = 'none';
+    tr.style.opacity = '0';
+    tr.style.transform = 'translateX(12px)';
+    tr.style.transition = 'opacity .18s ease, transform .18s ease';
+    setTimeout(() => { tr.remove(); syncJson(); renumber(); }, 180);
+  });
+
+  tr.querySelectorAll('input, select').forEach(el => el.addEventListener('input', syncJson));
+  tbody.appendChild(tr);
+  renumber();
+  syncJson();
+}
+
+function renumber() {
+  tbody.querySelectorAll('.partisipan-row').forEach((tr, i) => {
+    tr.querySelector('.td-num').textContent = i + 1;
+  });
+}
+
+function syncJson() {
+  const rows = [];
+  tbody.querySelectorAll('.partisipan-row').forEach(tr => {
+    const nama  = tr.querySelector('.p-nama').value.trim();
+    const sel   = tr.querySelector('.p-peran').value;
+    const peran = sel === 'Lainnya'
+      ? tr.querySelector('.p-peran-custom').value.trim()
+      : sel;
+    if (nama || peran) rows.push({ nama, peran });
+  });
+  jsonIn.value = JSON.stringify(rows);
+
+  const total = rows.filter(r => r.nama).length;
+  countEl.textContent = total + ' peserta';
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* Init */
+initialRows.forEach(r => addRow(r));
+
+document.getElementById('btn-add-row').addEventListener('click', () => addRow());
+
+/* Serialize sebelum submit */
+document.getElementById('form-create').addEventListener('submit', syncJson);
+</script>
+@endpush
 
 </x-app-layout>
