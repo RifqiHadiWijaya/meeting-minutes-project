@@ -316,152 +316,41 @@
   <input type="hidden" name="dok_id" id="hapus-dok-id">
 </form>
 
+{{-- ── Modal konfirmasi hapus foto ── --}}
+<div id="modal-hapus-foto" class="modal-backdrop" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-icon-wrap modal-icon-danger">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+        <path d="M10 11v6"/><path d="M14 11v6"/>
+        <path d="M9 6V4h6v2"/>
+      </svg>
+    </div>
+    <div class="modal-title">Hapus Foto?</div>
+    <div class="modal-body">
+      Foto <strong id="modal-foto-nama" style="color:var(--slate-900);"></strong> akan dihapus permanen dan tidak bisa dikembalikan.
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="modal-foto-batal">Batal</button>
+      <button type="button" class="btn-primary" id="modal-foto-konfirm"
+              style="background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 4px 14px rgba(239,68,68,.3);">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+        </svg>
+        Ya, Hapus
+      </button>
+    </div>
+  </div>
+</div>
+
 {{-- ╔══════════════════════════════════════════════════════════╗
      ║  @push HARUS di dalam <x-app-layout>, bukan di luarnya  ║
+     ║  <script> logic dipindah ke resources/js/pages/edit.js  ║
      ╚══════════════════════════════════════════════════════════╝ --}}
 @push('scripts')
 <script src="{{ asset('js/tinymce/tinymce.min.js') }}"></script>
-<script>
-/* ─── Hapus foto ─────────────────────────────────────────── */
-function hapusFoto(dokId, namaFile) {
-  if (!confirm('Hapus foto "' + namaFile + '"?')) return;
-  document.getElementById('hapus-dok-id').value = dokId;
-  document.getElementById('form-hapus-foto').submit();
-}
-
-/* ─── TinyMCE ─────────────────────────────────────────────── */
-tinymce.init({
-  selector: '#notulensi-editor',   /* pakai ID, bukan name selector */
-  license_key: 'gpl',
-  promotion: false,
-  branding: false,
-  height: 420,
-  menubar: 'file edit view insert format tools table',
-  plugins: 'lists link table',
-  toolbar: 'undo redo | formatselect | bold italic underline | alignleft aligncenter alignright | bullist numlist | table',
-  block_formats: 'Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3',
-  valid_elements: 'p,h1,h2,h3,strong/b,em/i,u,ul,ol,li,table,thead,tbody,tr,th,td,a[href|target=_blank]',
-  forced_root_block: 'p',
-  skin: 'oxide',
-  content_css: 'default',
-  setup: function(editor) {
-    editor.on('init', function() {
-      editor.getContainer().style.borderRadius = '7px';
-      editor.getContainer().style.border = '1px solid #e2e8f0';
-      editor.getContainer().style.overflow = 'hidden';
-    });
-    editor.on('focus', function() {
-      editor.getContainer().style.borderColor = '#3b82f6';
-      editor.getContainer().style.boxShadow = '0 0 0 3px rgba(59,130,246,.08)';
-    });
-    editor.on('blur', function() {
-      editor.getContainer().style.borderColor = '#e2e8f0';
-      editor.getContainer().style.boxShadow = 'none';
-    });
-  }
-});
-
-/* ─── Partisipan dinamis ──────────────────────────────────── */
-const ROLES = ['Pimpinan Rapat','Sekretaris / Notulis','Narasumber','Peserta','Undangan'];
-
-const tbody   = document.getElementById('partisipan-tbody');
-const jsonIn  = document.getElementById('partisipan-json');
-const countEl = document.getElementById('partisipan-count');
-
-/* Baca nilai awal dari hidden field yang sudah di-set Blade */
-let initialRows = [];
-try {
-  const raw = jsonIn.value.trim();
-  if (raw) initialRows = JSON.parse(raw);
-} catch(e) { console.warn('Partisipan parse error:', e); }
-
-if (!initialRows.length) {
-  initialRows = [{ nama: '', peran: 'Pimpinan Rapat' }, { nama: '', peran: 'Peserta' }];
-}
-
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function buildRoleOptions(selected) {
-  const isOther = selected && !ROLES.includes(selected);
-  return ROLES.map(r =>
-    `<option value="${r}" ${r === selected ? 'selected' : ''}>${r}</option>`
-  ).join('') + `<option value="Lainnya" ${isOther ? 'selected' : ''}>Lainnya…</option>`;
-}
-
-function syncJson() {
-  const rows = [];
-  tbody.querySelectorAll('.partisipan-row').forEach(tr => {
-    const nama  = tr.querySelector('.p-nama').value.trim();
-    const sel   = tr.querySelector('.p-peran').value;
-    const peran = sel === 'Lainnya' ? tr.querySelector('.p-peran-custom').value.trim() : sel;
-    if (nama || peran) rows.push({ nama, peran });
-  });
-  jsonIn.value = JSON.stringify(rows);
-  countEl.textContent = rows.filter(r => r.nama).length + ' peserta';
-}
-
-function renumber() {
-  tbody.querySelectorAll('.partisipan-row').forEach((tr, i) => {
-    tr.querySelector('.td-num').textContent = i + 1;
-  });
-}
-
-function addRow(data) {
-  data = data || { nama: '', peran: 'Peserta' };
-  const isOther = data.peran && !ROLES.includes(data.peran);
-  const tr = document.createElement('tr');
-  tr.className = 'partisipan-row';
-  tr.style.animation = 'rowIn .2s ease both';
-  tr.innerHTML = `
-    <td class="td-num"></td>
-    <td><input type="text" class="form-input p-nama" placeholder="Nama peserta…" value="${escHtml(data.nama || '')}"></td>
-    <td>
-      <div style="display:flex;gap:6px;align-items:center;">
-        <select class="form-select p-peran" style="flex:1;">${buildRoleOptions(isOther ? 'Lainnya' : (data.peran || 'Peserta'))}</select>
-        <input type="text" class="form-input p-peran-custom" placeholder="Tulis peran…"
-          value="${isOther ? escHtml(data.peran) : ''}"
-          style="flex:1;display:${isOther ? 'block' : 'none'};">
-      </div>
-    </td>
-    <td>
-      <button type="button" class="partisipan-del-btn" title="Hapus baris">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-    </td>`;
-
-  tr.querySelector('.p-peran').addEventListener('change', function() {
-    const custom = tr.querySelector('.p-peran-custom');
-    if (this.value === 'Lainnya') { custom.style.display = 'block'; custom.focus(); }
-    else { custom.style.display = 'none'; custom.value = ''; }
-    syncJson();
-  });
-
-  tr.querySelector('.partisipan-del-btn').addEventListener('click', function() {
-    if (tbody.querySelectorAll('.partisipan-row').length <= 1) return;
-    tr.style.opacity = '0'; tr.style.transform = 'translateX(12px)';
-    tr.style.transition = 'opacity .18s, transform .18s';
-    setTimeout(() => { tr.remove(); syncJson(); renumber(); }, 180);
-  });
-
-  tr.querySelectorAll('input, select').forEach(el => el.addEventListener('input', syncJson));
-  tbody.appendChild(tr);
-  renumber();
-  syncJson();
-}
-
-initialRows.forEach(r => addRow(r));
-document.getElementById('btn-add-row').addEventListener('click', () => addRow());
-
-/* Submit: paksa TinyMCE tulis balik ke textarea, baru sync JSON */
-document.getElementById('form-edit').addEventListener('submit', function() {
-  if (typeof tinymce !== 'undefined') tinymce.triggerSave();
-  syncJson();
-});
-</script>
 @endpush
 
 </x-app-layout>

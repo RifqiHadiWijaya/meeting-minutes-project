@@ -25,6 +25,7 @@ import { initMeetings }   from './pages/meetings.js';
 import { initUsers }      from './pages/users.js';
 import { initShow }       from './pages/show.js';
 import { initDashboard }  from './pages/dashboard.js';
+import { initEdit }       from './pages/edit.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // ── Global ──
@@ -36,4 +37,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initUsers();
     initShow();
     initDashboard();
+    initEdit();
 });

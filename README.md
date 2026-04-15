@@ -1,3 +1,5 @@
+
+```
 notulensi-rapat
 ├─ .editorconfig
 ├─ app
@@ -26,6 +28,7 @@ notulensi-rapat
 │  │     └─ ProfileUpdateRequest.php
 │  ├─ Models
 │  │  ├─ Meeting.php
+│  │  ├─ MeetingDokumentasi.php
 │  │  ├─ MeetingQuestion.php
 │  │  └─ User.php
 │  ├─ Policies
@@ -71,7 +74,8 @@ notulensi-rapat
 │  │  ├─ 2026_03_05_044849_make_email_nullable_in_users_table.php
 │  │  ├─ 2026_03_09_053348_fix_meetings_foreign_keys_null_on_delete.php
 │  │  ├─ 2026_03_10_025756_add_name_snapshot_to_meetings_table.php
-│  │  └─ 2026_03_10_025757_add_name_snapshot_to_meeting_questions_table.php
+│  │  ├─ 2026_03_10_025757_add_name_snapshot_to_meeting_questions_table.php
+│  │  └─ 2026_04_06_003443_create_meeting_dokumentasi_table.php
 │  └─ seeders
 │     └─ DatabaseSeeder.php
 ├─ package-lock.json
@@ -299,6 +303,7 @@ notulensi-rapat
 │  │  │  └─ table-filter.js
 │  │  └─ pages
 │  │     ├─ dashboard.js
+│  │     ├─ edit.js
 │  │     ├─ meetings.js
 │  │     ├─ show.js
 │  │     └─ users.js

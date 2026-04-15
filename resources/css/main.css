@@ -1925,3 +1925,289 @@ tbody tr:hover {
     flex-shrink: 0;
     text-transform: uppercase;
 }
+
+/* =============================================================
+   FORM IMPROVEMENTS — Tambahkan di bagian bawah main.css
+   Mempercantik form create & edit, fix overflow mobile
+   ============================================================= */
+
+/* ── Input dengan ikon: fix overflow ──────────────────────── */
+.input-wrap {
+    position: relative;
+    display: block;
+}
+
+.input-wrap .input-icon {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--slate-400);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    z-index: 1;
+}
+
+.input-wrap .form-input {
+    padding-left: 36px;
+    width: 100%;
+    min-width: 0; /* penting! mencegah overflow */
+}
+
+/* ── Form input & select: lebih rapi ─────────────────────── */
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    min-width: 0;       /* mencegah overflow di flex/grid */
+    max-width: 100%;    /* tidak boleh melebihi container */
+    box-sizing: border-box;
+    border: 1.5px solid var(--slate-200);
+    border-radius: var(--radius-md);
+    padding: 9px 12px;
+    font-size: 13px;
+    background: var(--slate-50);
+    color: var(--slate-900);
+    font-family: inherit;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+    /* Cegah teks overflow pada input */
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.form-textarea {
+    white-space: normal;   /* textarea boleh wrap */
+    overflow: auto;
+    resize: vertical;
+    min-height: 96px;
+    line-height: 1.65;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    border-color: var(--blue-400);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, .12);
+    background: var(--white);
+}
+
+/* ── Form group: label lebih jelas ───────────────────────── */
+.form-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--slate-600);
+    margin-bottom: 1px;
+    display: block;
+}
+
+.form-label span.required {
+    color: var(--orange-500);
+    margin-left: 2px;
+}
+
+/* ── Form grid: lebih baik di semua ukuran ───────────────── */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    align-items: start;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0; /* penting untuk grid children */
+}
+
+.form-group.full {
+    grid-column: 1 / -1;
+}
+
+/* ── Section divider label ───────────────────────────────── */
+.form-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--blue-400);
+    grid-column: 1 / -1;
+    padding: 10px 0 0;
+    border-top: 1.5px solid var(--slate-100);
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--slate-100);
+}
+
+/* ── Card header: lebih clean ─────────────────────────────── */
+.card-header {
+    padding: 14px 22px;
+    border-bottom: 1.5px solid var(--slate-100);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--slate-50);
+    gap: 12px;
+}
+
+.card-header-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--slate-800);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.card-header-title svg {
+    color: var(--blue-500);
+    stroke: currentColor;
+    flex-shrink: 0;
+}
+
+.card-body {
+    padding: 22px 24px;
+}
+
+/* ── Select: arrow lebih jelas ─────────────────────────────── */
+.form-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── Status pills: upgrade ─────────────────────────────────── */
+.status-pills {
+    display: flex;
+    gap: 10px;
+}
+
+.status-pill {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all .2s;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+}
+
+.status-pill input[type="radio"] {
+    display: none;
+}
+
+.status-pill-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: .5;
+    flex-shrink: 0;
+    transition: opacity .2s, transform .2s;
+}
+
+.status-pill:has(input:checked) .status-pill-dot {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+.status-pill.scheduled {
+    background: var(--blue-50);
+    color: var(--blue-600);
+    border-color: var(--blue-100);
+}
+
+.status-pill.scheduled:has(input:checked) {
+    background: var(--blue-50);
+    border-color: var(--blue-400);
+    box-shadow: 0 0 0 3px rgba(59,130,246,.1);
+}
+
+.status-pill.completed {
+    background: #f0fdf4;
+    color: #16a34a;
+    border-color: #bbf7d0;
+}
+
+.status-pill.completed:has(input:checked) {
+    background: #dcfce7;
+    border-color: #4ade80;
+    box-shadow: 0 0 0 3px rgba(22,163,74,.1);
+}
+
+/* ── Form footer ────────────────────────────────────────────── */
+.form-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 24px;
+    border-top: 1.5px solid var(--slate-100);
+    background: var(--slate-50);
+}
+
+/* ── Error & hint text ──────────────────────────────────────── */
+.form-hint {
+    font-size: 11px;
+    color: var(--slate-400);
+    margin-top: 3px;
+    line-height: 1.5;
+}
+
+.form-error {
+    font-size: 11.5px;
+    color: var(--danger-text);
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.form-input.is-error,
+.form-select.is-error,
+.form-textarea.is-error {
+    border-color: #fca5a5;
+    background: #fff5f5;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, .06);
+}
+
+/* ── Card: tambah hover effect ──────────────────────────────── */
+.card {
+    background: var(--white);
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 4px rgba(10,22,40,.07), 0 1px 2px rgba(10,22,40,.05);
+    transition: box-shadow .2s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 16px rgba(10,22,40,.10);
+}
